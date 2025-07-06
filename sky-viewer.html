@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>光遇琴谱可视化</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .controls {
+      margin-bottom: 20px;
+    }
+
+    .frame-container {
+      display: grid;
+      gap: 10px;
+    }
+
+    .frame {
+      display: grid;
+      grid-template-columns: repeat(5, 40px);
+      grid-template-rows: repeat(3, 40px);
+      gap: 3px;
+      padding: 5px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .key {
+      width: 40px;
+      height: 40px;
+      border-radius: 4px;
+      position: relative;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Light Theme */
+    body.light {
+      background-color: #f9f9f9;
+      color: #222;
+    }
+
+    body.light .frame {
+      background-color: #ddd;
+    }
+
+    body.light .key {
+      background-color: #fff;
+      border: 1px solid #ccc;
+    }
+
+    body.light .dot {
+      background-color: #007bff;
+      box-shadow: 0 0 4px rgba(0, 123, 255, 0.8);
+    }
+
+    /* Dark Theme */
+    body.dark {
+      background-color: #121212;
+      color: #eee;
+    }
+
+    body.dark .frame {
+      background-color: #333;
+    }
+
+    body.dark .key {
+      background-color: #222;
+      border: 1px solid #555;
+    }
+
+    body.dark .dot {
+      background-color: #00ccff;
+      box-shadow: 0 0 6px rgba(0, 204, 255, 0.8);
+    }
+
+    button, select {
+      padding: 6px 10px;
+      margin-right: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body class="light">
+  <h2>🎵 光遇琴谱可视化工具</h2>
+  <div class="controls">
+    <button onclick="toggleTheme()">切换主题</button>
+    每行帧数：
+    <select onchange="updateLayout(this.value)">
+      <option value="4">4</option>
+      <option value="6" selected>6</option>
+      <option value="8">8</option>
+      <option value="10">10</option>
+      <option value="999">不换行</option>
+    </select>
+  </div>
+
+  <div id="container" class="frame-container"></div>
+
+  <script>
+    let currentTheme = 'light';
+
+    // 使用 RC 编码格式：行列组合，例如 00=第一行第一列，24=第三行第五列
+    const sheet = [
+      [0, 2],     // 第一帧：第1行第1列、第1行第3列
+      [11, 22],   // 第二帧：第2行第2列、第3行第3列
+      [],
+      [14],       // 第2行第5列
+      [4, 13],    // 第1行第5列、第3行第4列
+      [20, 24],   // 第3行第1列、第3行第5列
+    ];
+
+    const container = document.getElementById("container");
+
+    function convertToIndex(rcCode) {
+      const row = Math.floor(rcCode / 10);
+      const col = rcCode % 10;
+      return row * 5 + col;
+    }
+
+    function renderFrames(framesPerRow = 6) {
+      container.innerHTML = "";
+      container.style.gridTemplateColumns = `repeat(${framesPerRow}, auto)`;
+
+      sheet.forEach(keys => {
+        const frame = document.createElement("div");
+        frame.className = "frame";
+
+        for (let i = 0; i < 15; i++) {
+          const keyDiv = document.createElement("div");
+          keyDiv.className = "key";
+
+          // 如果按键包含 i 的转换形式（RC编码）
+          if (keys.map(convertToIndex).includes(i)) {
+            const dot = document.createElement("div");
+            dot.className = "dot";
+            keyDiv.appendChild(dot);
+          }
+
+          frame.appendChild(keyDiv);
+        }
+
+        container.appendChild(frame);
+      });
+    }
+
+    function toggleTheme() {
+      currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.body.className = currentTheme;
+    }
+
+    function updateLayout(value) {
+      const count = parseInt(value);
+      renderFrames(count);
+    }
+
+    // 初始渲染
+    renderFrames(6);
+  </script>
+</body>
+</html>

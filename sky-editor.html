@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>光遇琴谱编辑器</title>
+  <style>
+    :root {
+      --dot-color: #00ccff;
+      --json-bg: #eee;
+      --json-fg: #222;
+    }
+
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .controls {
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .frame-container {
+      display: grid;
+      gap: 10px;
+    }
+
+    .frame {
+      display: grid;
+      grid-template-columns: repeat(5, 40px);
+      grid-template-rows: repeat(3, 40px);
+      gap: 3px;
+      padding: 5px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      cursor: pointer;
+    }
+
+    .key {
+      width: 40px;
+      height: 40px;
+      border-radius: 4px;
+      position: relative;
+      user-select: none;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: var(--dot-color);
+      box-shadow: 0 0 6px var(--dot-color);
+    }
+
+    body.light {
+      background-color: #f9f9f9;
+      color: #222;
+      --json-bg: #eee;
+      --json-fg: #222;
+    }
+
+    body.light .frame {
+      background-color: #ddd;
+    }
+
+    body.light .key {
+      background-color: #fff;
+      border: 1px solid #ccc;
+    }
+
+    body.dark {
+      background-color: #121212;
+      color: #eee;
+      --json-bg: #1f1f1f;
+      --json-fg: #eee;
+    }
+
+    body.dark .frame {
+      background-color: #333;
+    }
+
+    body.dark .key {
+      background-color: #222;
+      border: 1px solid #555;
+    }
+
+    button, select, input[type="color"] {
+      padding: 6px 10px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #aaa;
+    }
+
+    .json-output {
+      white-space: pre-wrap;
+      background: var(--json-bg);
+      color: var(--json-fg);
+      padding: 10px;
+      border-radius: 6px;
+      font-family: monospace;
+      max-height: 250px;
+      overflow-y: auto;
+      margin-top: 10px;
+      border: 1px solid #555;
+    }
+
+    .frame-highlight {
+      outline: 2px solid yellow;
+    }
+  </style>
+</head>
+<body class="dark">
+  <h2>🎵 光遇琴谱编辑器</h2>
+  <div class="controls">
+    <button onclick="toggleTheme()">切换主题</button>
+    <button onclick="prevFrame()">上一帧</button>
+    <button onclick="nextFrame()">下一帧</button>
+    <button onclick="addFrame()">添加帧</button>
+    <button onclick="deleteFrame()">删除当前帧</button>
+    当前帧：<span id="frame-num">1</span>
+
+    每行帧数：
+    <select onchange="updateGrid(this.value)" id="frame-count">
+      <option value="4">4</option>
+      <option value="6" selected>6</option>
+      <option value="8">8</option>
+      <option value="10">10</option>
+      <option value="999">不换行</option>
+    </select>
+
+
+    点颜色：
+    <input type="color" value="#00ccff" id="color-picker" onchange="updateDotColor(this.value)">
+    <input type="file" id="import-file" accept=".json" onchange="importSheet(this)" />
+  </div>
+
+  <div id="container" class="frame-container"></div>
+
+  <h3>🎼 当前乐谱数据：</h3>
+  <div class="json-output" id="json-output"></div>
+
+  <script>
+    let currentTheme = 'dark';
+    let sheet = [[]];
+    let currentFrameIndex = 0;
+    let framesPerRow = 6;
+
+    const container = document.getElementById("container");
+    const jsonOutput = document.getElementById("json-output");
+    const frameNum = document.getElementById("frame-num");
+
+    function rcToIndex(r, c) {
+      return r * 5 + c;
+    }
+
+    function indexToRC(index) {
+      const row = Math.floor(index / 5);
+      const col = index % 5;
+      return row * 10 + col;
+    }
+
+    function toggleTheme() {
+      currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.body.className = currentTheme;
+    }
+
+    function updateDotColor(color) {
+      document.documentElement.style.setProperty('--dot-color', color);
+    }
+
+    function renderFrames() {
+      container.innerHTML = "";
+      container.style.gridTemplateColumns = `repeat(${framesPerRow}, auto)`;
+
+      sheet.forEach((keys, frameIdx) => {
+        const frame = document.createElement("div");
+        frame.className = "frame";
+        if (frameIdx === currentFrameIndex) {
+          frame.classList.add("frame-highlight");
+        }
+
+        for (let i = 0; i < 15; i++) {
+          const keyDiv = document.createElement("div");
+          keyDiv.className = "key";
+          const rcCode = indexToRC(i);
+          const isActive = keys.includes(rcCode);
+
+          if (isActive) {
+            const dot = document.createElement("div");
+            dot.className = "dot";
+            keyDiv.appendChild(dot);
+          }
+
+          keyDiv.onclick = () => {
+            const frameData = sheet[frameIdx];
+            const idx = frameData.indexOf(rcCode);
+            if (idx !== -1) {
+              frameData.splice(idx, 1);
+            } else {
+              frameData.push(rcCode);
+            }
+            renderFrames();
+            updateJson();
+          };
+
+          frame.appendChild(keyDiv);
+        }
+
+        container.appendChild(frame);
+      });
+
+      frameNum.textContent = currentFrameIndex + 1;
+    }
+
+    function updateJson() {
+      jsonOutput.textContent = JSON.stringify(sheet, null, 2);
+    }
+
+    function addFrame() {
+      sheet.push([]);
+      currentFrameIndex = sheet.length - 1;
+      renderFrames();
+      updateJson();
+    }
+
+    function deleteFrame() {
+      if (sheet.length <= 1) return alert("至少保留一帧！");
+      sheet.splice(currentFrameIndex, 1);
+      if (currentFrameIndex >= sheet.length) currentFrameIndex = sheet.length - 1;
+      renderFrames();
+      updateJson();
+    }
+
+    function nextFrame() {
+      if (currentFrameIndex < sheet.length - 1) {
+        currentFrameIndex++;
+        renderFrames();
+        updateJson();
+      }
+    }
+
+    function prevFrame() {
+      if (currentFrameIndex > 0) {
+        currentFrameIndex--;
+        renderFrames();
+        updateJson();
+      }
+    }
+
+    function updateGrid(value) {
+      framesPerRow = parseInt(value);
+      renderFrames();
+    }
+    function importSheet(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data) || !data.every(f => Array.isArray(f))) {
+        throw new Error("格式错误：需要是二维数组。");
+      }
+      sheet = data;
+      currentFrameIndex = 0;
+      renderFrames();
+      updateJson();
+    } catch (err) {
+      alert("导入失败：" + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+
+    // 初始化
+    renderFrames();
+    updateJson();
+  </script>
+</body>
+</html>
