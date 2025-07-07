@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>光遇琴谱编辑器</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="dark">
+  <div class="toolbar">
+    <h2>🎵 光遇琴谱编辑器</h2>
+    <div class="controls">
+      <button onclick="toggleTheme()">切换主题</button>
+      <button onclick="prevFrame()">← 上一帧</button>
+      <button onclick="nextFrame()">下一帧 →</button>
+      <button onclick="jumpToStart()">⏮ 开头</button>
+      <button onclick="jumpToEnd()">⏭ 结尾</button>
+      <button onclick="addFrame()">+ 添加帧</button>
+      <button onclick="addPage()">+ 添加页</button>
+      <button onclick="cloneLastRow()">克隆最后一行</button>
+      <button onclick="deleteFrame()">🗑 删除当前帧</button>
+      每行帧数：<select onchange="updateGrid(this.value)">
+        <option value="4">4</option>
+        <option value="6" selected>6</option>
+        <option value="8">8</option>
+        <option value="10">10</option>
+      </select>
+      点颜色：
+      <div class="color-palette">
+        <div class="color red" onclick="setDotColor('#ff4d4d')"></div>
+        <div class="color orange" onclick="setDotColor('#ffaa00')"></div>
+        <div class="color yellow" onclick="setDotColor('#ffee00')"></div>
+        <div class="color green" onclick="setDotColor('#66cc66')"></div>
+        <div class="color blue" onclick="setDotColor('#00ccff')"></div>
+        <div class="color purple" onclick="setDotColor('#cc66ff')"></div>
+      </div>
+      <input type="file" id="import-file" accept=".json" onchange="importSheet(this)" />
+      <button onclick="copyJson()">📋 复制内容</button>
+      BPM：<input id="bpm" type="number" value="120" min="1" max="300" onchange="updateJson()" />
+      当前帧：<span id="frame-num">1</span>
+    </div>
+  </div>
+
+  <div id="container" class="frame-container"></div>
+
+  <div class="json-panel">
+    <h3>当前乐谱数据：</h3>
+    <div id="json-output" class="json-output"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
