@@ -108,8 +108,8 @@ function addFrame() {
 }
 
 function addPage() {
-  for (let i = 0; i < 32; i++) sheet.push([]);
-  currentFrame = sheet.length - 32;
+  for (let i = 0; i < framesPerPage; i++) sheet.push([]);
+  currentFrame = sheet.length - framesPerPage;
   render();
 }
 
