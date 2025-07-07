@@ -49,21 +49,26 @@ function updateJson() {
 }
 
 function render() {
-  container.innerHTML = "";
   container.style.gridTemplateColumns = `repeat(${framesPerRow}, auto)`;
-  sheet.forEach((keys, i) => {
-    if (i > 0 && i % framesPerPage === 0) {
-      const sep = document.createElement("div");
-      sep.className = "page-break";
-      container.appendChild(sep);
+  container.innerHTML = "";
+  let currentSheetGroup = null;
 
-      // 插入每纸页分组标记（打印用）
-      if (((i / framesPerPage) % pagesPerSheet) === 0) {
-        const groupBreak = document.createElement("div");
-        groupBreak.className = "sheet-break";
-        container.appendChild(groupBreak);
-      }
+  sheet.forEach((keys, i) => {
+    // 每新建一张纸
+    if (i % (framesPerPage * pagesPerSheet) === 0) {
+      currentSheetGroup = document.createElement("div");
+      currentSheetGroup.className = "sheet-group";
+      container.appendChild(currentSheetGroup);
     }
+
+    // 每插入一页（视觉页分隔）
+    if (i > 0 && i % framesPerPage === 0) {
+      const pageBreak = document.createElement("div");
+      pageBreak.className = "page-break";
+      currentSheetGroup.appendChild(pageBreak);
+    }
+
+    // 创建帧
     const frame = document.createElement("div");
     frame.className = "frame";
     if (i === currentFrame) frame.classList.add("highlight");
@@ -89,8 +94,9 @@ function render() {
       };
       frame.appendChild(key);
     }
-    container.appendChild(frame);
+    currentSheetGroup.appendChild(frame);
   });
+
   frameNum.textContent = currentFrame + 1;
   updateJson();
 }

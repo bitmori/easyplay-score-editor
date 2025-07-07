@@ -120,7 +120,16 @@ body.light {
 }
 
 @media print {
-  .sheet-break {
-    break-after: page;
+  .sheet-group {
+    page-break-after: always;
+  }
+
+  .toolbar, .json-panel {
+    display: none !important;
+  }
+
+  body {
+    margin: 0;
+    background: white;
   }
 }
