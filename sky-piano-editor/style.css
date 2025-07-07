@@ -118,18 +118,3 @@ body.light {
   max-height: 300px;
   overflow-y: auto;
 }
-
-@media print {
-  .sheet-group {
-    page-break-after: always;
-  }
-
-  .toolbar, .json-panel {
-    display: none !important;
-  }
-
-  body {
-    margin: 0;
-    background: white;
-  }
-}
