@@ -2,6 +2,7 @@ let sheet = [[]];
 let bpm = 120;
 let currentFrame = 0;
 let framesPerRow = 6;
+let framesPerPage = 32;
 
 const container = document.getElementById("container");
 const frameNum = document.getElementById("frame-num");
@@ -28,6 +29,12 @@ function updateGrid(val) {
   render();
 }
 
+function updatePageSize(val) {
+  framesPerPage = parseInt(val);
+  render();
+}
+
+
 function updateJson() {
   bpm = parseInt(bpmInput.value) || 120;
   const data = { bpm, sheet };
@@ -38,7 +45,7 @@ function render() {
   container.innerHTML = "";
   container.style.gridTemplateColumns = `repeat(${framesPerRow}, auto)`;
   sheet.forEach((keys, i) => {
-    if (i > 0 && i % 32 === 0) {
+    if (i > 0 && i % framesPerPage === 0) {
       const sep = document.createElement("div");
       sep.className = "page-break";
       container.appendChild(sep);

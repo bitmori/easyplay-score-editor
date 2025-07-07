@@ -24,6 +24,12 @@
         <option value="8">8</option>
         <option value="10">10</option>
       </select>
+      每页帧数：<select onchange="updatePageSize(this.value)">
+        <option value="16">16</option>
+        <option value="24">24</option>
+        <option value="32" selected>32</option>
+        <option value="48">48</option>
+      </select>
       点颜色：
       <div class="color-palette">
         <div class="color red" onclick="setDotColor('#ff4d4d')"></div>
