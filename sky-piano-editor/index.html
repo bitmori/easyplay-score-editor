@@ -24,11 +24,21 @@
         <option value="8">8</option>
         <option value="10">10</option>
       </select>
-      每页帧数：<select onchange="updatePageSize(this.value)">
-        <option value="16">16</option>
-        <option value="24">24</option>
-        <option value="32" selected>32</option>
-        <option value="48">48</option>
+      每页行数：<select onchange="updatePageSize(this.value)">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4" selected>4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+      </select>
+      每纸页数：
+      <select onchange="updatePagesPerSheet(this.value)">
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4" selected>4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
       </select>
       点颜色：
       <div class="color-palette">

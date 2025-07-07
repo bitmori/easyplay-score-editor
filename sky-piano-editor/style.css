@@ -118,3 +118,9 @@ body.light {
   max-height: 300px;
   overflow-y: auto;
 }
+
+@media print {
+  .sheet-break {
+    break-after: page;
+  }
+}

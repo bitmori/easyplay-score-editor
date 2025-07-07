@@ -2,7 +2,9 @@ let sheet = [[]];
 let bpm = 120;
 let currentFrame = 0;
 let framesPerRow = 6;
-let framesPerPage = 32;
+let rowsPerPage = 4;
+let framesPerPage = rowsPerPage * framesPerRow;
+let pagesPerSheet = 4;
 
 const container = document.getElementById("container");
 const frameNum = document.getElementById("frame-num");
@@ -30,10 +32,15 @@ function updateGrid(val) {
 }
 
 function updatePageSize(val) {
-  framesPerPage = parseInt(val);
+  rowsPerPage = parseInt(val);
+  framesPerPage = rowsPerPage * framesPerRow;
   render();
 }
 
+function updatePagesPerSheet(val) {
+  pagesPerSheet = parseInt(val);
+  render();
+}
 
 function updateJson() {
   bpm = parseInt(bpmInput.value) || 120;
@@ -49,6 +56,13 @@ function render() {
       const sep = document.createElement("div");
       sep.className = "page-break";
       container.appendChild(sep);
+
+      // 插入每纸页分组标记（打印用）
+      if (((i / framesPerPage) % pagesPerSheet) === 0) {
+        const groupBreak = document.createElement("div");
+        groupBreak.className = "sheet-break";
+        container.appendChild(groupBreak);
+      }
     }
     const frame = document.createElement("div");
     frame.className = "frame";
